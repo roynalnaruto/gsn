@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+rm -rf dist/
+yarn generate
+
+#these files are created for packing only (removed by "postpack")
+
+#not that GsnTestEnvironment is not in index.ts (has to be imported separately):
+# it is a dev-only script, which references also the server code.
+cat > index.ts <<EOF
+export * from './RelayProvider'
+export * from './RelayClient'
+export * from './GSNConfigurator'
+EOF
+
+for c in RelayProvider RelayClient GSNConfigurator GsnTestEnvironment; do
+  echo gen ./$c.ts:
+  (echo "// generated during pack";echo "export * from './src/relayclient/$c'") > $c.ts
+done
+
+tsc
+
+cp -r types dist/

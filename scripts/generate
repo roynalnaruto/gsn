@@ -1,0 +1,20 @@
+#!/bin/bash -e
+
+rm -rf ./build/contracts
+truffle compile
+rm -rf types/truffle-contracts/
+typechain --target trufflehotfix './build/contracts/**/*.json'
+rm -rf src/common/interfaces/
+yarn extract_abi
+
+rm -rf src/cli/compiled/
+mkdir -p src/cli/compiled/
+
+CONTRACTS="RelayHub StakeManager Penalizer Forwarder TestPaymasterEverythingAccepted"
+BUILDFOLDER=./build/contracts
+OUTFOLDER=./src/cli/compiled/
+for c in $CONTRACTS; do
+  echo copied $OUTFOLDER/$c.json
+  cp $BUILDFOLDER/$c.json $OUTFOLDER
+done
+
